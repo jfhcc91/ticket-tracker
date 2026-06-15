@@ -5,7 +5,7 @@ Users can create, manage, and filter support tickets by priority and status.
 
 ## 📸 Screenshot
 
-> App running locally at http://127.0.0.1:5000
+> ![Ticket Tracker Screenshot](ticketracker.png)
 
 ## ✨ Features
 

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+    header { background: #1e3a5f; color: white; padding: 1.2rem 2rem; }
+    header h1 { font-size: 1.4rem; font-weight: 600; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* New ticket form */
+    .card { background: white; border-radius: 10px; padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 1.5rem; }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #1e3a5f; }
+    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    input, textarea, select {
+      width: 100%; padding: .6rem .8rem; border: 1px solid #ddd;
+      border-radius: 6px; font-size: .9rem; font-family: inherit; }
+    textarea { resize: vertical; min-height: 70px; }
+    .form-group { flex: 1; min-width: 200px; margin-bottom: .8rem; }
+    label { display: block; font-size: .8rem; font-weight: 500;
+            color: #555; margin-bottom: .3rem; }
+    button[type=submit] {
+      background: #1e3a5f; color: white; border: none; padding: .65rem 1.4rem;
+      border-radius: 6px; cursor: pointer; font-size: .9rem; font-weight: 500; }
+    button[type=submit]:hover { background: #2a4f80; }
+
+    /* Filters */
+    .filters { display: flex; gap: .8rem; margin-bottom: 1.2rem; align-items: center; flex-wrap: wrap; }
+    .filters label { font-size: .85rem; font-weight: 500; color: #555; white-space: nowrap; }
+    .filters select { width: auto; min-width: 130px; }
+
+    /* Tickets */
+    .ticket { background: white; border-radius: 10px; padding: 1.2rem 1.4rem;
+              box-shadow: 0 1px 4px rgba(0,0,0,.07); margin-bottom: .9rem;
+              border-left: 4px solid #ccc; }
+    .ticket.priority-High { border-left-color: #e74c3c; }
+    .ticket.priority-Medium { border-left-color: #f39c12; }
+    .ticket.priority-Low { border-left-color: #27ae60; }
+    .ticket-header { display: flex; justify-content: space-between;
+                     align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+    .ticket-title { font-weight: 600; font-size: 1rem; }
+    .ticket-meta { font-size: .78rem; color: #888; margin-top: .25rem; }
+    .ticket-desc { font-size: .88rem; color: #444; margin: .6rem 0; line-height: 1.5; }
+    .badges { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    .badge { font-size: .72rem; padding: .2rem .6rem; border-radius: 20px; font-weight: 500; }
+    .badge-Open { background: #e8f0fe; color: #1a56db; }
+    .badge-In-Progress { background: #fff3cd; color: #856404; }
+    .badge-Resolved { background: #d1fae5; color: #065f46; }
+    .badge-High { background: #fee2e2; color: #991b1b; }
+    .badge-Medium { background: #fef3c7; color: #92400e; }
+    .badge-Low { background: #dcfce7; color: #166534; }
+    .update-form { display: flex; gap: .5rem; align-items: center; margin-top: .8rem; }
+    .update-form select { width: auto; font-size: .82rem; padding: .35rem .6rem; }
+    .update-form button { background: #e8f0fe; color: #1a56db; border: none;
+      padding: .35rem .85rem; border-radius: 6px; cursor: pointer; font-size: .82rem; font-weight: 500; }
+    .update-form button:hover { background: #c7d7f9; }
+    .empty { text-align: center; color: #888; padding: 3rem; font-size: .95rem; }
+  </style>
+</head>
+<body>
+<header><h1>🎫 Ticket Tracker</h1></header>
+<div class="container">
+
+  <!-- Create ticket -->
+  <div class="card">
+    <h2>New Ticket</h2>
+    <form action="/create" method="post">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label>Title</label>
+          <input name="title" required placeholder="Brief description of the issue">
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select name="priority">
+            <option>High</option>
+            <option selected>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" placeholder="Full details of the issue..."></textarea>
+      </div>
+      <button type="submit">Create Ticket</button>
+    </form>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <label>Filter by:</label>
+    <form method="get" style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap">
+      <select name="status" onchange="this.form.submit()">
+        <option {% if status_filter=='All' %}selected{% endif %}>All</option>
+        <option {% if status_filter=='Open' %}selected{% endif %}>Open</option>
+        <option {% if status_filter=='In Progress' %}selected{% endif %}>In Progress</option>
+        <option {% if status_filter=='Resolved' %}selected{% endif %}>Resolved</option>
+      </select>
+      <select name="priority" onchange="this.form.submit()">
+        <option {% if priority_filter=='All' %}selected{% endif %}>All</option>
+        <option {% if priority_filter=='High' %}selected{% endif %}>High</option>
+        <option {% if priority_filter=='Medium' %}selected{% endif %}>Medium</option>
+        <option {% if priority_filter=='Low' %}selected{% endif %}>Low</option>
+      </select>
+    </form>
+  </div>
+
+  <!-- Ticket list -->
+  {% if tickets %}
+    {% for t in tickets %}
+    <div class="ticket priority-{{ t.priority }}">
+      <div class="ticket-header">
+        <div>
+          <div class="ticket-title">#{{ t.id }} — {{ t.title }}</div>
+          <div class="ticket-meta">Created {{ t.created }}</div>
+        </div>
+        <div class="badges">
+          <span class="badge badge-{{ t.priority }}">{{ t.priority }}</span>
+          <span class="badge badge-{{ t.status.replace(' ', '-') }}">{{ t.status }}</span>
+        </div>
+      </div>
+      <div class="ticket-desc">{{ t.description }}</div>
+      <form class="update-form" action="/update/{{ t.id }}" method="post">
+        <label style="font-size:.82rem;color:#555">Update status:</label>
+        <select name="status">
+          <option {% if t.status=='Open' %}selected{% endif %}>Open</option>
+          <option {% if t.status=='In Progress' %}selected{% endif %}>In Progress</option>
+          <option {% if t.status=='Resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+        <button type="submit">Save</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">No tickets found. Create one above.</div>
+  {% endif %}
+
+</div>
+</body>
+</html>
